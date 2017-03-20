@@ -1,0 +1,3 @@
+system calls:
+-creat(filename, mode): creates a new file or overwrites existing
+
