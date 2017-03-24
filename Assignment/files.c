@@ -8,12 +8,12 @@ struct settings_t{
 	char placeholder[20];
 };
 
-struct settings_t loadSettings(){
+struct settings_t loadSettings(){//change freads to fgets
 	struct settings_t settings;
 	FILE *fp;
 	fp = fopen("settings.conf", "r");
 	if(fp){//if the file exists and is readable
-		fread(&settings, sizeof(settings), 1, fp);
+		fread(&settings, sizeof(settings), 1, fp);//modify read for comments/errors
 		fclose(fp);
 	}
 	else{//if the file does not exist return create file with default settings
