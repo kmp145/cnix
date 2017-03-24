@@ -1,3 +1,64 @@
 system calls:
 -creat(filename, mode): creates a new file or overwrites existing
 
+Files.c:
+
+Int main () {
+	If (.conf file exists){
+		If (conf file cannot be read) {
+			Display error message to user
+			Quit program
+		}
+		Else {
+			while (not end of file){
+				Read line from conf file
+				if(buffer[0] != "#"){
+					Assign setting
+				}
+			}
+		}
+	}
+	Else {
+		Create conf file
+		Write default values to conf file
+		Assign default settings
+	}
+	If (sharing list exists) {
+		If (sharing list cannot be read) {
+			Display error message to user
+			Quit program
+		}
+		Else {
+			Read sharing list
+			For (files in sharing list) {
+				If (file doesn’t exist or can’t be read) {
+					Remove file from list
+					Display message to user
+				}
+			}
+		}
+
+	}
+	Else {
+		Create sharing list file
+	}
+	while (1){
+		present user with a menu with numbered options
+		switch (userInput) {
+			case 1:
+				function();
+				break;
+			case 2:
+				function();
+				break;
+			...
+			case n:
+				function();
+				break;
+			default :
+				print error
+		}
+	
+	
+	}
+}
