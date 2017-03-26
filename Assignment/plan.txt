@@ -3,45 +3,64 @@ system calls:
 
 Files.c:
 
-Int main () {
-	If (.conf file exists){
-		If (conf file cannot be read) {
-			Display error message to user
-			Quit program
+loadSettings(){
+	open the file
+	if the file exits{
+		if the file is not readable{
+			display error message
+			log error
+			terminate program
 		}
-		Else {
-			while (not end of file){
-				Read line from conf file
-				if(buffer[0] != "#"){
-					Assign setting
+		while not end of file{
+			read a line
+			if the line doesnt start with #{
+				if it begins with username{
+					assign to settings
 				}
-			}
+				... and so on for rest of settings
+				else{
+					display error message
+					log error
+					terminate program
+				}
+			}	
 		}
+	}	
+	else{
+		create the conf file
+		assign the default settings
+		log the event
 	}
-	Else {
-		Create conf file
-		Write default values to conf file
-		Assign default settings
-	}
-	If (sharing list exists) {
-		If (sharing list cannot be read) {
+	return settings
+}
+
+loadSharing list(){
+	if (sharing list exists) {
+		if (sharing list cannot be read) {
 			Display error message to user
-			Quit program
+			log event
+			terminate program
 		}
-		Else {
-			Read sharing list
-			For (files in sharing list) {
+		else {
+			for (files in sharing list){
+				read list
 				If (file doesn’t exist or can’t be read) {
 					Remove file from list
 					Display message to user
 				}
 			}
+	
 		}
+	}
+	else{
+		create sharing list file
+		populatelist()
+	}
+}
 
-	}
-	Else {
-		Create sharing list file
-	}
+
+Int main () {
+	load settings
 	while (1){
 		present user with a menu with numbered options
 		switch (userInput) {
@@ -62,3 +81,9 @@ Int main () {
 	
 	}
 }
+
+
+
+logger.c
+
+
