@@ -3,32 +3,34 @@
 #include <string.h>
 #include "io.h"
 #include "logger.h"
+#include "files.h"
 
-struct settings_t{
-	char placeholder[20];
-};
 
-struct settings_t loadSettings(){//change freads to fgets
-	struct settings_t settings;
+int loadSettings(settings_t *settings){//change freads to fgets
+	char buffer[150], *label, *value;
 	FILE *fp;
-	fp = fopen("settings.conf", "r");
-	if(fp != NULL){//if the file exists add if readable
-		fread(&settings, sizeof(settings), 1, fp);//modify read for comments/errors
-		fclose(fp);
+	if((fp=fopen("settings.conf", "r"))){//if the file exists add if readable
+		strcpy(settings->username,"username test");
+		while (fgets(buffer,150,fp)){
+			if (buffer[0] != '#' && buffer[0] != '\0'){
+				fprintf(stdout, "%s\n", buffer);
+				
+			}
+		}
 	}
 	else{//if the file does not exist return create file with default settings
 		fp = fopen("settings.conf", "w");
-		strcpy(settings.placeholder,"defaultSettings");
-		fprintf(fp, "%s\n","test");
+		//strcpy(settings.username,"defaultSettings");
+		fprintf(fp, "%s\n","defaultSettings");
 		fclose(fp);
 		logThis("Default settings were used since there was no conf file found.","log.txt");	
 	}
-	return settings;
+	return 0;
 }
 
 int main(){
-	struct settings_t settings;
-	settings = loadSettings();
-	printf("%s\n",settings.placeholder);
+	settings_t settings = {"User","192.168.0.12",777,"./log.txt"};
+	loadSettings(&settings);
+	printf("%s\n",settings.username);
 	return 0;
 }

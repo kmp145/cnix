@@ -4,6 +4,7 @@ system calls:
 Files.c:
 
 loadSettings(){
+	make two pointers one called value and one label
 	open the file
 	if the file exits{
 		if the file is not readable{
@@ -13,15 +14,26 @@ loadSettings(){
 		}
 		while not end of file{
 			read a line
-			if the line doesnt start with #{
-				if it begins with username{
-					assign to settings
+			if the line doesnt start with # or a NULL character{
+				assign value and label to the address of the line
+				while &value != ':'{//finds the positon of ':' in the line
+					if value points to a NULL character{//means invalid setting
+						log event
+						display error to user
+					}
+					value++
+				}
+				make the character value points to a NULL character //seperating the strings
+				value++ //so it points to the actual value and label points to the label
+
+				if label is username{
+					assign value to settings
 				}
 				... and so on for rest of settings
 				else{
 					display error message
 					log error
-					terminate program
+					terminate program//needed??
 				}
 			}	
 		}
