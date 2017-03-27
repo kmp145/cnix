@@ -12,15 +12,16 @@ struct settings_t loadSettings(){//change freads to fgets
 	struct settings_t settings;
 	FILE *fp;
 	fp = fopen("settings.conf", "r");
-	if(fp){//if the file exists and is readable
+	if(fp != NULL){//if the file exists add if readable
 		fread(&settings, sizeof(settings), 1, fp);//modify read for comments/errors
 		fclose(fp);
 	}
 	else{//if the file does not exist return create file with default settings
-		fopen("settings.conf", "w");
+		fp = fopen("settings.conf", "w");
 		strcpy(settings.placeholder,"defaultSettings");
-		fwrite(&settings, sizeof(settings), 1, fp);
-		fclose(fp);	
+		fprintf(fp, "%s\n","test");
+		fclose(fp);
+		logThis("Default settings were used since there was no conf file found.","log.txt");	
 	}
 	return settings;
 }
