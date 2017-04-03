@@ -1,5 +1,7 @@
 system calls:
 -creat(filename, mode): creates a new file or overwrites existing
+F_OK = file exist
+R_OK = file is readable
 
 Files.c:
 
@@ -69,7 +71,7 @@ loadSharing list(){
 		populatelist()
 	}
 }
-
+FOR SHARING LIST UPDATING FILE: WRITE ALL GOOD RECORDS TO NEW FILE DELETE OLD RENAME NEW.
 
 Int main () {
 	load settings

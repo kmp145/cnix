@@ -1,6 +1,8 @@
 #include <time.h>
 #include <stdio.h>//debugging
 
+//add logger startup which cleans log file etc..
+
 
 void logThis(char logMsg[100], char logFile[20]){
 	char formattedTime[20];
