@@ -10,7 +10,7 @@ int loadSettings(settings_t *settings){//change freads to fgets
 	char buffer[150], label[20], *value, delimitor[2] = ":";
 	FILE *fp;
 	if((fp=fopen("settings.conf", "r"))){//if the file exists add if readable
-		strcpy(settings->username,"username test");
+		//strcpy(settings->username,"username test");
 		while (fgets(buffer,150,fp)){
 			if (buffer[0] != '#' && buffer[0] != '\0'){
 				fprintf(stdout, "%s\n", buffer);
@@ -18,12 +18,46 @@ int loadSettings(settings_t *settings){//change freads to fgets
 				strcpy(label,value);
 				value = strtok(NULL,delimitor);
 				printf("%s is %s\n",label,value);
-				if(!strcmp(label, "username"){
+
+				if(!strcmp(label, "username")){
 					if (value != NULL){
+						strcpy(settings->username,value);
 						//assign
 					}
 					else
+						printf("invalid");
 						//log
+				}
+
+				else if(!strcmp(label, "ip")){
+					if (value != NULL){
+						//assign
+						strcpy(settings->IPAddress,value);
+					}
+					else
+						printf("invalid");
+						//log
+				}
+				
+				else if(!strcmp(label, "logfile")){
+					if (value != NULL){
+						//assign
+						strcpy(settings->logFile,value);
+					}
+					else
+						printf("invalid");
+						//log
+				}
+				else if(!strcmp(label, "port")){
+					if (value != NULL){
+						settings->port = value;//this needs updating
+					}
+					else
+						printf("invalid");
+						//log
+				}
+				else{
+					//when invalid setting detected
 				}
 			}
 		}
@@ -39,9 +73,9 @@ int loadSettings(settings_t *settings){//change freads to fgets
 }
 
 int main(){
-	settings_t settings = {"User","192.168.0.12",777,"./log.txt"};
+	settings_t settings = {"User","192.168.0.12","./log.txt",777};
 	loadSettings(&settings);
 	printf("%s\n",settings.username);
-	logThis("Program finished with no errors.",settings.logLocation);
+	logThis("Program finished with no errors.",settings.logFile);
 	return 0;
 }
