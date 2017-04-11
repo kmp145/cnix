@@ -98,22 +98,23 @@ shareList_t loadSharingList(settings_t settings){
 		//sharing list exists	
 		if(!access("./sharingList.txt", R_OK)){
 			//sharing list is readable
-			fp=fopen("sharingList.txt", "r");
-			while (fgets(buffer, 250, fp) != NULL){
-				fprintf(stdout, "%s\n THIS IS BUFFER", buffer);//debug
+			fp=fopen("sharingList.txt","r");
+			while(fgets(buffer, 250, fp)!= NULL){
+				//fprintf(stdout,"%s THIS IS BUFFER IN LOOP\n ",buffer);//debug
 				permissionlevel = strtok(buffer,delimitor);
 				strcpy(filename,permissionlevel);
-				fprintf(stdout,"%s\n THIS IS FILENAME",filename);//debug
+				//fprintf(stdout,"%s\n THIS IS FILENAME",filename);//debug
 				permissionlevel = strtok(NULL,delimitor);
 				strcpy(username,permissionlevel);
-				fprintf(stdout, "%s\n THIS IS USERNAME",username);//debug
+				//fprintf(stdout, "%s\n THIS IS USERNAME",username);//debug
 				permissionlevel = strtok(NULL, delimitor);
-				fprintf(stdout,"%s\n THIS IS PERMISSIONLEVEL",permissionlevel);//debug
-				if (!access(filename, F_OK) && !access(filename, R_OK)){//if file in file list is valid
+				//fprintf(stdout,"%s\n THIS IS PERMISSIONLEVEL",permissionlevel);//debug
+				//fprintf(stdout, "%s TESTING\n", filename);//debug
+				if (access(filename, F_OK) && access(filename, R_OK)){//if file in file list is valid
 					strcpy(sharingList.fileName[counter],filename);
 					strcpy(sharingList.userName[counter],strtok(username,"\n"));
 					strcpy(sharingList.permissionLevel[counter],permissionlevel);
-					fprintf(stdout, "%s is a valid file on the sharing list\n", filename);
+					//fprintf(stdout, "%s is a valid file on the sharing list\n", filename);//debug
 				}
 				else{//if the file is invalid
 					strcpy(logMsg, "Invalid file detected! Dropping ");
@@ -124,8 +125,12 @@ shareList_t loadSharingList(settings_t settings){
 					logThis(logMsg,settings.logFile);
 				}
 			}
-			fprintf(stdout,"out of the loop");
+			//fprintf(stdout,"out of the loop\n");//debug
 		}
+			
+			
+				
+	
 		else{
 			//logThis("Sharing list is not readable, creating a new list...",settings.logFile);
 			sharingList = createSharingList(settings);
@@ -140,7 +145,7 @@ shareList_t loadSharingList(settings_t settings){
 	}
 	if (errorFound){
 		//rewrite the sharingList.txt using only sharingList to get rid of errors
-		//saveSharingList(sharingList);
+		saveSharingList(sharingList);//may need fixing
 	}
 	fclose(fp);
 	return sharingList;
@@ -163,8 +168,8 @@ int loadSettings(settings_t *settings){//change freads to fgets
 						//assign
 					}
 					else
-						printf("invalid");
-						//log
+						//printf("invalid");//debug
+						logThis("Invalid username setting detected, using default value.",settings->logFile);
 				}
 
 				else if(!strcmp(label, "ip")){
@@ -173,8 +178,8 @@ int loadSettings(settings_t *settings){//change freads to fgets
 						strcpy(settings->IPAddress,value);
 					}
 					else
-						printf("invalid");
-						//log
+						//printf("invalid");//debug
+						logThis("Invalid IP address setting detected, using default value.",settings->logFile);
 				}
 				
 				else if(!strcmp(label, "logfile")){
@@ -183,16 +188,16 @@ int loadSettings(settings_t *settings){//change freads to fgets
 						strcpy(settings->logFile,value);
 					}
 					else
-						printf("invalid");
-						//log
+						//printf("invalid");//debug
+						logThis("Invalid logfile setting detected, using default value.",settings->logFile);
 				}
 				else if(!strcmp(label, "port")){
 					if (value != NULL){
 						settings->port = value;//this needs updating
 					}
 					else
-						printf("invalid");
-						//log
+						//printf("invalid");//debug
+						logThis("Invalid port setting detected, using default value.",settings->logFile);
 				}
 				else{
 					//when invalid setting detected
@@ -209,11 +214,39 @@ int loadSettings(settings_t *settings){//change freads to fgets
 
 int main(){
 	//intialiseLogger()
+	char *userChoice;
 	settings_t settings = {"User","192.168.0.12","./log.txt",777};
 	shareList_t sharingList;
-	loadSettings(&settings);
-	sharingList = loadSharingList(settings);
-	//printf("%s\n",settings.username);//debug
+	loadSettings(&settings);//gets settings
+	sharingList = loadSharingList(settings);//gets sharing List
+	while (1){//This section is supposed to be in a function displayMeun(), located in io.c however i would get an error about multiple definitions of functions in that c file
+		fprintf(stdout,"What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.\n");
+		//userChoice = inputInt("What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.\n");
+		fgets(userChoice,3,stdin);
+		fprintf(stdout,"%s\n",userChoice);
+		if(strcmp(userChoice,"1")){
+			//display current user
+			fprintf(stdout,"tasr");		
+		}
+		else if(strcmp(userChoice,"2")){
+			//change user settings	
+		}
+		else if(strcmp(userChoice,"3")){
+			//display contents of sharing list		
+		}
+		else if(strcmp(userChoice,"4")){
+			//change file permission		
+		}
+		else if(strcmp(userChoice,"99")){
+			//exit	
+			break;	
+		}
+		else
+			fprintf(stdout,"Invalid choice!");
+		
+		
+	}
+	return 0;
 	logThis("Program finished with no fatal errors.",settings.logFile);
 	return 0;
 }
