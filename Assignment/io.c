@@ -19,7 +19,7 @@ const char * inputStr(char userInput[], char msg[100], int length){
 int inputInt(char msg[]){
 	printf("%s\n",msg);
 	int userInput;
-	fegts(userInput,5,stdin);
+	fgets(userInput,5,stdin);
 	return userInput;
 }
 
