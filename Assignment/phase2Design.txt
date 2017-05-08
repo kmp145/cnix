@@ -1,0 +1,16 @@
+how the program will run:
+
+loadConfigFile()
+LoadSharingList()
+maintainSharingList()
+loadFriends()
+maintainFriends()
+following userinput:
+-connect to a friend to recieve their file sharing list (based on permissionS)
+-request a file to be download from a peer
+-ALLOW multiple peers to connect and download from a single peer simultaneousy
+-Terminate gracefully (check brief)
+-Handle signal apprioately (check brief)
+-Logger (as a seperate process)
+
+Use a makefile to build applicate with atleast make and make clean build targets
