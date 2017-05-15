@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>//FOR inet_addr()
+#include <sys/stat.h>
 
 int createSocket(){
 	 
@@ -36,41 +38,82 @@ void listenForConnection(int sockfd){
 	listen(sockfd,5);
 	clientlen = sizeof(clientAddress);
 	newsockfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientlen);
-	
-	//fprintf(stdout,"New connection on:\t%s",clientAddress.sin_addr.s_addr);
+	//fprintf(stdout,"New connection on:\t%s",clientAddress.sin_addr);
 	memset(buffer,0,256);
 	line = write(newsockfd, "Connected",10);
 	line = read( newsockfd, buffer, 255);
-
 	if (line<0){//error reading from socket
+		fprintf(stdout,"Error connecting...\n");
 	}
-	fprintf(stdout,"You entered:\t%s\n", buffer);
-	line = write(newsockfd, "Returning message",18);
+	else{
+		fprintf(stdout,"You entered:\t%s\n", buffer);
+		line = write(newsockfd, "Returning message",18);
+	}
 }
+
+
+void sendFile(int sockfd){ 
+	int sentBytes = 0, offset = 0, remainingData, fd, fileSize;
+	char buffer[512];
+	struct stat fileStats;
+	ssize_t len;
+	FILE *fp;
+	fp = fopen("testTransfer.txt","r");//add error check and variable use
+	fd = fileno(fp);
+
+	/*if(fstat(fd, &fileStats)){
+		//add error check
+	}
+	else{*/
+	fstat(fd, &fileStats);
+		fileSize = fileStats.st_size;
+		//sprintf(fileSize, "%d", fileStats.st_size);
+		fprintf(stdout,"Size of file:\t %d bytes\n", fileSize);
+	//}
+	//len = send(sockfd, &fileSize, sizeof(fileSize), 0);//sends file size to friend
+	//if len < 0 error sending size
+	remainingData = fileStats.st_size;
+	/*
+	while(sentBytes = send(sockfd, fp, &offset, sizeof(buffer)) > 0){
+		remainingData -= sentBytes;
+		fprintf(stdout, "Sent %d bytes out of %d", sentBytes,len);
+	}*/
+	return;
+
+}
+
+
 
 void connectToFriend(int sockfd, char * targetIP, int targetPort){//still needs updating
 
 	int line;
-	char buffer[256];	
+	char buffer[256];
+	
+	//sockfd = createSocket();
 	struct sockaddr_in targetAddress;
 	memset(&targetAddress,0,sizeof(targetAddress));
 	targetAddress.sin_family = AF_INET;
-	//strcpy(targetAddress.sin_addr.s_addr,"127.0.0.1");
-	targetAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+	targetAddress.sin_addr.s_addr = inet_addr(targetIP);
 	targetAddress.sin_port = htons(targetPort);
-	//connect("127.0.0.1",7777);
 	if(connect(sockfd, (struct sockaddr*)&targetAddress, sizeof(targetAddress)) < 0){
 		fprintf(stdout,"Error connecting...\n");
 	}
-
-
-	line = read(sockfd, buffer, 255);
-	fprintf(stdout,"%s\n",buffer);
-	fgets(buffer,255,stdin);
-	line = write(sockfd, buffer, strlen(buffer));
+	else{
+		sendFile(sockfd);
+		line = read(sockfd, buffer, 255);
+		fprintf(stdout,"%s\n",buffer);
+		fgets(buffer,255,stdin);
+		line = write(sockfd, buffer, strlen(buffer));
+		line = read(sockfd, buffer, 255);
+		fprintf(stdout,"%s\n",buffer);
+	}
+	
 	
 	
 }
+
+
+
 
 int main(){
 
@@ -82,7 +125,8 @@ int main(){
 	//fprintf(stdout,"test\n");
 	int sockfd;
 	sockfd = createSocket();//change to pass port
-	listenForConnection(sockfd);
+	connectToFriend(sockfd, "127.0.0.1", 7777);//connecting to friend
+	//listenForConnection(sockfd);
 	/*listen(sockfd,5);
 	
 	clientlen = sizeof(clientAddress);

@@ -42,10 +42,12 @@ int main(){
 	if(connect(sockfd, (struct sockaddr*)&targetAddress, sizeof(targetAddress)) < 0){
 		fprintf(stdout,"Error connecting...\n");
 	}
-
-
-	line = read(sockfd, buffer, 255);
-	fprintf(stdout,"%s\n",buffer);
-	fgets(buffer,255,stdin);
-	line = write(sockfd, buffer, strlen(buffer));
+	else{
+		line = read(sockfd, buffer, 255);
+		fprintf(stdout,"%s\n",buffer);
+		fgets(buffer,255,stdin);
+		line = write(sockfd, buffer, strlen(buffer));
+		line = read(sockfd, buffer, 255);
+		fprintf(stdout,"%s\n",buffer);
+	}
 }
