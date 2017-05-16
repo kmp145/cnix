@@ -1,16 +1,79 @@
-how the program will run:
+how files.c will run:
 
 loadConfigFile()
+	--If it doesn't exist create one with defaults
+	-read from file ignoring every line starting with '#'
+	-Assign each line to their respective settings
+	-If file is not readable continue with defaults
 LoadSharingList()
+	-If it doesn't exist create one
+	-Read from file each line formatted like: FILENAME:FILEPATH:USERNAME:SHARINGPERMISSION
+	-Check if the file exists and is readable: if no then remove from list
 maintainSharingList()
+	-Add/remove individual files or directorys
+	-Change sharing permissions
 loadFriends()
+	-If nonexistent then create
+	-File contains their version of config file
 maintainFriends()
-following userinput:
--connect to a friend to recieve their file sharing list (based on permissionS)
--request a file to be download from a peer
--ALLOW multiple peers to connect and download from a single peer simultaneousy
--Terminate gracefully (check brief)
--Handle signal apprioately (check brief)
--Logger (as a seperate process)
+	-Add/remove friend
+	
+MAIN ():
+	following userinput:
+	-connect to a friend to recieve their file sharing list (based on permissionS)
+		-Created on a new thread/process
+	-request a file to be download from a peer
+	-ALLOW multiple peers to connect and download from a single peer simultaneousy
+	-Terminate gracefully (check brief)
+	-Handle signal apprioately (check brief)
+	-Logger (as a seperate process)
+
+How io.c will run:
+
+inputString(char msg[], int expected length of string) //function is type const char *
+	-print (msg)
+	-fgets(some user input)
+	-return the input
+
+inputInt(char msg[])//is type int
+	-print msg
+	-fgets an int
+	-return that int
+
+displayMainMenu() //Maybe adapt to handle all menus
+	-print all menu options
+	-fgets an int
+	-Have IF's inside the menus if nested menu
+	-return that int
+
+How logger.c will work: // Should run as seperate process
+
+initLogger(log file location)
+	-if log file doesnt exist create one
+	-open file
+	-log time of start on and on what port/ip
+	-close file
+
+logThis(log file location, event)
+	-open file (append mode)
+	-get current time
+	-write to file (current time : event)
+	-close file
+
+How networking.c will work: 
+
+createSocket(port number)//Is type int
+	-create socket
+	-return that socket
+
+listenForConnection()//Seperate process
+	-socket = createSocket(port number)//PORT NUMBER FROM CONFIG FILE
+	-listen on that socket
+	-on new connection:
+		-store connection info
+		-do some stuff
+	-close connection
+	-Terminate process
+
 
 Use a makefile to build applicate with atleast make and make clean build targets
