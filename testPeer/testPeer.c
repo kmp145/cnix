@@ -8,6 +8,51 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+int createSocket(){
+	 
+	fprintf(stdout,"in createSocket()\n");
+
+	int sockfd, port = 7777;//Change so port is passed
+
+	struct sockaddr_in serverAddress;
+	
+	memset(&serverAddress, 0, sizeof(serverAddress));//intialise serv_addr to 0
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	serverAddress.sin_port = htons(port);//set port number
+
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);//create socket
+	bind(sockfd, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
+	fprintf(stdout,"Socket successfully created on port %d\n", port);
+	return sockfd;
+}
+
+void listenForConnection(int sockfd){
+	/*
+	fprintf(stdout,"listening...\n");
+	
+	int newsockfd, line, clientlen;
+	char buffer[256];
+	struct sockaddr_in clientAddress;
+	
+	
+	listen(sockfd,5);
+	clientlen = sizeof(clientAddress);
+	newsockfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientlen);//update
+	//fprintf(stdout,"New connection on:\t%s",clientAddress.sin_addr);
+	memset(buffer,0,256);
+	line = write(newsockfd, "Connected",10);
+	line = read( newsockfd, buffer, 255);
+	if (line<0){//error reading from socket
+		fprintf(stdout,"Error connecting...\n");
+	}
+	else{
+		fprintf(stdout,"You entered:\t%s\n", buffer);
+		line = write(newsockfd, "Returning message",18);
+	}*/
+	return;
+}
+
 
 void sendFile(int sockfd, char fileName[120]){//should be called from listenForConnection()
 	int fileSize, line, convertedSize;
@@ -45,58 +90,9 @@ void recieveFile(int sockfd, char fileName[120]){
 	fprintf(stdout, "%d\n", fileSize);
 	line = read(sockfd, buffer, 255);//Test
 	fputs(buffer,fp);
+	fclose(fp);
 
 }
-
-
-int createSocket(){
-	 
-	fprintf(stdout,"in createSocket()\n");
-
-	int sockfd, port = 7777;//Change so port is passed
-
-	struct sockaddr_in serverAddress;
-	
-	memset(&serverAddress, 0, sizeof(serverAddress));//intialise serv_addr to 0
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	serverAddress.sin_port = htons(port);//set port number
-
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);//create socket
-	bind(sockfd, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
-	fprintf(stdout,"Socket successfully created on port %d\n", port);
-	return sockfd;
-}
-
-void listenForConnection(int sockfd){
-	
-	fprintf(stdout,"listening...\n");
-	
-	int newsockfd, line, clientlen;
-	char buffer[256];
-	struct sockaddr_in clientAddress;
-	
-	
-	listen(sockfd,5);
-	clientlen = sizeof(clientAddress);
-	newsockfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientlen);//update
-	//fprintf(stdout,"New connection on:\t%s",clientAddress.sin_addr);
-	memset(buffer,0,256);
-	sendFile(sockfd, "testTransfer.txt");
-	line = write(newsockfd, "Connected",10);
-	line = read( newsockfd, buffer, 255);
-	if (line<0){//error reading from socket
-		fprintf(stdout,"Error connecting...\n");
-	}
-	else{
-		fprintf(stdout,"You entered:\t%s\n", buffer);
-		line = write(newsockfd, "Returning message",18);
-	}
-	return;
-}
-
-
-
 
 
 void connectToFriend(int sockfd, char * targetIP, int targetPort){//still needs updating
@@ -114,20 +110,21 @@ void connectToFriend(int sockfd, char * targetIP, int targetPort){//still needs 
 		fprintf(stdout,"Error connecting...\n");
 	}
 	else{
-		line = read(sockfd, buffer, 255);
-		if(line <0){
-			fprintf(stdout,"error reading");
-		}
-		fprintf(stdout,"%s\n",buffer);
-		fgets(buffer,255,stdin);
-		line = write(sockfd, buffer, strlen(buffer));
-		line = read(sockfd, buffer, 255);
-		fprintf(stdout,"%s\n",buffer);
+		recieveFile(sockfd, "testTransfer.txt");
+		//line = read(sockfd, buffer, 255);
+		//if(line <0){
+			//fprintf(stdout,"error reading");
 	}
-	
-	
-	
+		//fprintf(stdout,"%s\n",buffer);
+		//fgets(buffer,255,stdin);
+		//line = write(sockfd, buffer, strlen(buffer));
+		//line = read(sockfd, buffer, 255);
+		//fprintf(stdout,"%s\n",buffer);
 }
+	
+	
+	
+
 
 
 
@@ -143,8 +140,8 @@ int main(){
 	int sockfd;
 	sockfd = createSocket();//change to pass port
 	//sendFile(sockfd, "testTransfer.txt");
-	//connectToFriend(sockfd, "127.0.0.1", 7777);//connecting to friend
-	listenForConnection(sockfd);
+	connectToFriend(sockfd, "127.0.0.1", 7777);//connecting to friend
+	//listenForConnection(sockfd);
 	/*listen(sockfd,5);
 	
 	clientlen = sizeof(clientAddress);

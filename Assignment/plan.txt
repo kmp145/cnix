@@ -100,4 +100,29 @@ Int main () {
 
 logger.c
 
+void intializelogger(string for log location){
+	logThis("program started at",log location)
+}
+
+void logThis(string for msg, string for where to log){
+	get the current time
+	open the log file in appened mode
+	write log msg with current time in log file
+	close log file
+}
+
+
+io.c
+
+int inputInt(string for msg){
+	print the msg
+	recieve inputted int
+	return inputted int
+}
+
+int inputString(string for msg){
+	print the msg
+	recieve inputted string
+	return inputted string
+}
 

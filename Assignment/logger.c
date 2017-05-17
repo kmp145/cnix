@@ -15,7 +15,8 @@ void logThis(char logMsg[100], char logFile[20]){
 	//printf("%s\n",formattedTime);//debug
 	FILE *fp;
 	fp = fopen(logFile, "a");
-	fprintf(fp, "%s %s\n", formattedTime, logMsg);
+	//fprintf(fp, "%s %s\n", formattedTime, logMsg);
+	fclose(fp);
 }
 
 
