@@ -214,12 +214,13 @@ int loadSettings(settings_t *settings){//change freads to fgets
 
 int main(){
 	//intialiseLogger()
-	char *userChoice;
 	settings_t settings = {"User","192.168.0.12","./log.txt",777};
 	shareList_t sharingList;
 	loadSettings(&settings);//gets settings
-	sharingList = loadSharingList(settings);//gets sharing List
-	while (1){//This section is supposed to be in a function displayMeun(), located in io.c however i would get an error about multiple definitions of functions in that c file
+	//sharingList = loadSharingList(settings);//gets sharing List
+	fprintf(stdout,"%s\n%s\n%s\n%d\n",settings.username, settings.IPAddress, settings.logFile, settings.port);
+	//REPLACE BELOW WITH DISPLAYMENU()
+	/*while (1){//This section is supposed to be in a function displayMeun(), located in io.c however i would get an error about multiple definitions of functions in that c file
 		fprintf(stdout,"What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.\n");
 		//userChoice = inputInt("What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.\n");
 		fgets(userChoice,3,stdin);
@@ -245,8 +246,7 @@ int main(){
 			fprintf(stdout,"Invalid choice!");
 		
 		
-	}
-	return 0;
+	}*/ 
 	logThis("Program finished with no fatal errors.",settings.logFile);
 	return 0;
 }

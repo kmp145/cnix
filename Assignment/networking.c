@@ -7,28 +7,38 @@
 #include <arpa/inet.h>//FOR inet_addr()
 #include <sys/stat.h>
 #include <sys/types.h>
-
+#include <fcntl.h>
 
 void sendFile(int sockfd, char fileName[120]){//should be called from listenForConnection()
-	int fileSize, line, convertedSize;
+	int line, convertedSize, dataSent = 0, offset = 0, remainingData, fd;
+	ssize_t len;
+	char fileSize[256];
+	struct stat fs;
 
-	FILE *fp; 
-	if((fp = fopen(fileName, "rb"))){
-		
-		fseek(fp,0,SEEK_END);
-		fileSize = ftell(fp);
-		rewind(fp);
-		
-		convertedSize = htonl(fileSize);
-		fprintf(stdout, "Size of \"%s\": %d bytes\n",fileName,fileSize);//DEBUG
-		line = write(sockfd, &convertedSize, sizeof(convertedSize));
 
-		line = send(sockfd, fp, fileSize, 0);
-			
-	}
-	else{
-		fprintf(stdout, "File not readable!\n");
-	}	
+	fd = open("testTransfer.txt", O_RDONLY);
+	fstat(fd, &fs);
+
+	//fprintf(stdout,"%d\n",fs.st_size);
+	sprintf(fileSize, "%d", fs.st_size);
+	//fprintf(stdout, "%s\n", fileSize);
+	convertedSize = atoi(fileSize);
+	fprintf(stdout, "Filesize of \"%s\" %d bytes\n", fileName, convertedSize);
+		
+	line = write(sockfd, &convertedSize, sizeof(convertedSize));
+	fprintf(stdout, "Server sent:\t%d bytes", line);
+	remainingData = convertedSize;
+
+	while (((dataSent = send(sockfd, &fd, offset, 255)) > 0) && (remainingData > 0)){
+			fprintf(stdout, "1. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", dataSent, offset, remainingData);
+			remainingData -= dataSent;
+			fprintf(stdout, "2. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", dataSent, offset, remainingData);
+		
+		}	 
+
+	//else{
+		//fprintf(stdout, "File not readable!\n");
+	//}	
 	
 	
 	return;
