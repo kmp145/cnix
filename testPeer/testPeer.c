@@ -81,16 +81,34 @@ void sendFile(int sockfd, char fileName[120]){//should be called from listenForC
 }
 
 void recieveFile(int sockfd, char fileName[120]){
-	int line, fileSize;
+	int line, fileSize, remainingData = 0;
 	char buffer[255];
+	ssize_t len;
 	FILE *fp;
-	fp = fopen(fileName, "w");	
+	fp = fopen(fileName, "w");
 
-	line = read(sockfd, &fileSize, sizeof(int));
+	read(sockfd, buffer, BUFSIZ);
+	fprintf(stdout, "%s\n", buffer);
+	fileSize = atoi(buffer);
+	fprintf(stdout, "%d\n", fileSize);
+	remainingData = fileSize;
+
+	while (((len = recv(sockfd, buffer, BUFSIZ, 0)) > 0) && (remainingData > 0))
+        {
+                fwrite(buffer, sizeof(char), len, fp);
+                remainingData -= len;
+                fprintf(stdout, "Receive %d bytes and we hope :- %d bytes\n", len, remainingData);
+
+	
+        }
+        fclose(fp);
+	close(sockfd);	
+
+	/*line = read(sockfd, &fileSize, sizeof(int));
 	fprintf(stdout, "%d\n", fileSize);
 	line = read(sockfd, buffer, 255);//Test
 	fputs(buffer,fp);
-	fclose(fp);
+	fclose(fp);*/
 
 }
 

@@ -3,9 +3,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include "io.h"
 #include "logger.h"
 #include "files.h"
+
+
+//shareList_t loadSharingList(shareList_t sharingList[100]);
 
 /*
 loadSharing list(){
@@ -24,7 +29,7 @@ loadSharing list(){
 				}
 			}
 	
-		}
+		} 
 	}
 	else{
 		create sharing list file
@@ -32,9 +37,28 @@ loadSharing list(){
 	}
 }
 FOR SHARING LIST UPDATING FILE: WRITE ALL GOOD RECORDS TO NEW FILE DELETE OLD RENAME NEW.
-*/
 
-void saveSharingList(shareList_t sharingList){/*
+*/
+void saveSharingList(shareList_t *sharingList, int counter){
+	//fprintf(stdout, "In save share list counter:\t%d\n", counter);
+	FILE *fp;
+	int i;
+	char output[512];
+	//counter = &shareCounter;
+	fp=fopen("sharingList.txt", "w");
+	fprintf(stdout, "%s xcxcx\n", sharingList[2].fileName);
+	for(i = 0; i < counter; i++){//KNOWN BUG CATS fileLOCATION TWICE
+		strcpy(output, "");
+		strcat(output,sharingList[i].fileLocation);
+		strcat(output,":");
+		strcat(output,sharingList[i].fileName);
+		strcat(output,":");
+		strcat(output,sharingList[i].userName);
+		strcat(output,":");
+		strcat(output,sharingList[i].permissionLevel);
+		fputs(output,fp);
+	}
+	/*	
 	FILE *fp;
 	int counter = 0;
 	char listNum[60];
@@ -50,11 +74,12 @@ void saveSharingList(shareList_t sharingList){/*
 		fputs(listNum,fp);
 		counter ++;		
 	}
-	fclose(fp);*/
+	fclose(fp);
+*/
 }
-
-shareList_t createSharingList(settings_t settings){
 /*
+shareList_t createSharingList(settings_t settings){
+
 
 	for files in directory{
 		check if its readable
@@ -63,7 +88,7 @@ shareList_t createSharingList(settings_t settings){
 			default to not sharable
 	}
 		
-*/
+
 	int counter = 0, i;
 	shareList_t shareList;
 	for (i = 0; i<10;i++){//sets defaults to NO it help later on
@@ -85,71 +110,92 @@ shareList_t createSharingList(settings_t settings){
 	}
 	closedir(dir);
 	saveSharingList(shareList);	
-	return shareList;
+	return 5;shareList;
 	
-}
+}*/
 
-shareList_t loadSharingList(settings_t settings){
-	FILE *fp;
-	char buffer[251], filename[12], username[20], *permissionlevel, delimitor[2] = ":", logMsg[45];
-	shareList_t sharingList;
-	int counter = 0, errorFound = FALSE;
-	if(!access("./sharingList.txt", F_OK)){
-		//sharing list exists	
-		if(!access("./sharingList.txt", R_OK)){
-			//sharing list is readable
-			fp=fopen("sharingList.txt","r");
-			while(fgets(buffer, 250, fp)!= NULL){
-				//fprintf(stdout,"%s THIS IS BUFFER IN LOOP\n ",buffer);//debug
-				permissionlevel = strtok(buffer,delimitor);
-				strcpy(filename,permissionlevel);
-				//fprintf(stdout,"%s\n THIS IS FILENAME",filename);//debug
-				permissionlevel = strtok(NULL,delimitor);
-				strcpy(username,permissionlevel);
-				//fprintf(stdout, "%s\n THIS IS USERNAME",username);//debug
-				permissionlevel = strtok(NULL, delimitor);
-				//fprintf(stdout,"%s\n THIS IS PERMISSIONLEVEL",permissionlevel);//debug
-				//fprintf(stdout, "%s TESTING\n", filename);//debug
-				if (access(filename, F_OK) && access(filename, R_OK)){//if file in file list is valid
-					strcpy(sharingList.fileName[counter],filename);
-					strcpy(sharingList.userName[counter],strtok(username,"\n"));
-					strcpy(sharingList.permissionLevel[counter],permissionlevel);
-					//fprintf(stdout, "%s is a valid file on the sharing list\n", filename);//debug
-				}
-				else{//if the file is invalid
-					strcpy(logMsg, "Invalid file detected! Dropping ");
-					strcat(logMsg, filename);
-					strcat(logMsg, " from sharing list...");
-					fprintf(stdout, "%s\n",logMsg);
-					errorFound = TRUE;//signals to drop invalid files later on
-					logThis(logMsg,settings.logFile);
-				}
-			}
-			//fprintf(stdout,"out of the loop\n");//debug
-		}
-			
-			
-				
+void maintainSharingList(shareList_t *sharingList, int counter){
 	
-		else{
-			//logThis("Sharing list is not readable, creating a new list...",settings.logFile);
-			sharingList = createSharingList(settings);
-		}
-		
-		
+	//ADD FILE:
+	FILE *fp;
+	char targetFile[512];
+	fprintf(stdout, "%d Input file LOCATION:\t",counter);//CHANGE TO something from io.c
+	fgets(targetFile, 512, stdin);//CHANGE TO io.c
+	if((fp=fopen(targetFile, "r"))){//Doesn't work properally
+		fprintf(stdout, "%s is a valid file...\n",targetFile);
 	}
 	else{
-		//printf("File does not exist");//debug
-		//sharing list doesn't exist
-		sharingList = createSharingList(settings);
+		fprintf(stdout, "%s is an invalid file...\n",targetFile);
 	}
-	if (errorFound){
-		//rewrite the sharingList.txt using only sharingList to get rid of errors
-		saveSharingList(sharingList);//may need fixing
-	}
-	fclose(fp);
-	return sharingList;
+	return;
 }
+
+
+shareList_t *loadSharingList(settings_t settings){
+	shareList_t sharingList[100];
+	char buffer[512], delimitor[2] = ":", fileLocation[256], filename[20], username[20], permission[2];
+	int  error = FALSE;
+	int counter = 0;
+	FILE *fp;
+	if((fp = fopen("sharingList.txt","r"))){
+		while(fgets(buffer,512,fp) != NULL){
+			if (buffer[0] != '\n'){
+				//fprintf(stdout, "%s",buffer);//DEBUG
+			
+				strcpy(fileLocation, strtok(buffer,delimitor));
+				strcpy(filename, strtok(NULL,delimitor));
+				strcpy(username, strtok(NULL,delimitor));
+				strcpy(permission, strtok(NULL,delimitor));
+
+
+				if( access(fileLocation, R_OK) != -1 && (!strcmp(permission,"0\n") || !strcmp(permission,"1\n"))){//if file and permission is valid
+					//fprintf(stdout, "%s is a valid file with vaild permissions\n", filename);//DEBUG
+					strcpy(sharingList[counter].fileLocation,fileLocation);
+					strcpy(sharingList[counter].fileName,filename);
+					strcpy(sharingList[counter].userName,username);
+					strcpy(sharingList[counter].permissionLevel,permission);
+					counter += 1;
+				}
+				else{//if file is invalid
+					error = TRUE;
+					//LOG THIS
+				}
+			}
+		}//end of while read file
+	fclose(fp);
+	}//end of if open file
+	else{
+		fp = fopen("sharingList.txt", "w");
+		fclose(fp);
+	}
+	if(error){// if an invalid file was found in list
+		logThis("Some Invalid files were dropped from sharingList.txt",settings.logFile);	
+	}
+	//fprintf(stdout,"%d\n",counter);
+	saveSharingList(sharingList, (uintptr_t)counter);
+	maintainSharingList(sharingList,counter);
+	return sharingList;//change
+}
+
+void saveSettings(settings_t *settings){
+	char temp[20], output[256];
+	FILE *fp;
+	fp = fopen("settings.conf","w");
+	strcpy(output, "username:");
+	strcat(output,settings->username);
+	strcat(output, "\nip:");
+	strcat(output,settings->IPAddress);
+	strcat(output, "\nlogfile:");
+	strcat(output,settings->logFile);
+	strcat(output, "\nport:");
+	sprintf(temp,"%d",settings->port);
+	strcat(output,temp);
+	strcat(output,"\n");
+	fputs(output,fp);
+	fclose(fp);
+
+}
+
 
 int loadSettings(settings_t *settings){//change freads to fgets
 	char buffer[150], label[20], *value, delimitor[2] = ":";
@@ -193,31 +239,38 @@ int loadSettings(settings_t *settings){//change freads to fgets
 				}
 				else if(!strcmp(label, "port")){
 					if (value != NULL){
-						settings->port = value;//this needs updating
+						settings->port = atoi(value);//this needs updating
 					}
 					else
 						//printf("invalid");//debug
 						logThis("Invalid port setting detected, using default value.",settings->logFile);
 				}
+				
 				else{
 					//when invalid setting detected
 				}
-			}
+				fclose(fp);
+			}	
 		}
 	}
 	else{//if the file does not exist return create file with default settings
 		//fprintf(fp, "%s\n","defaultSettings");//debug
-		logThis("Default settings were used since there was no conf file found.",settings->logFile);	
+		logThis("Default settings were used since there was no conf file found.",settings->logFile);
+		saveSettings(settings);	
+		
 	}
+	
 	return 0;
 }
 
 int main(){
 	//intialiseLogger()
 	settings_t settings = {"User","192.168.0.12","./log.txt",777};
-	shareList_t sharingList;
+	shareList_t *sharingList;
 	loadSettings(&settings);//gets settings
-	//sharingList = loadSharingList(settings);//gets sharing List
+	sharingList = loadSharingList(settings);//gets sharing List
+	//maintainSharingList(sharingList);
+	fprintf(stdout, "%s\n",sharingList[0].fileName);
 	fprintf(stdout,"%s\n%s\n%s\n%d\n",settings.username, settings.IPAddress, settings.logFile, settings.port);
 	//REPLACE BELOW WITH DISPLAYMENU()
 	/*while (1){//This section is supposed to be in a function displayMeun(), located in io.c however i would get an error about multiple definitions of functions in that c file

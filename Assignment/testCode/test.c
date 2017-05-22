@@ -12,17 +12,19 @@
 #include <sys/sendfile.h>
 
 int main(){
-	int fd;
-	char fileSize[256];
-	struct stat fs;
-
-
-	fd = open("testTransfer.txt", O_RDONLY);
-	fstat(fd, &fs);
-
-	fprintf(stdout,"%d\n",fs.st_size);
-	sprintf(fileSize, "%d", fs.st_size);
-	fprintf(stdout, "%s\n", fileSize);
+	//ADD FILE:
+	FILE *fp;
+	char targetFile[512];
+	fprintf(stdout, " Input file LOCATION:\t");//CHANGE TO something from io.c
+	fgets(targetFile, 512, stdin);//CHANGE TO io.c
+	fprintf(stdout, " Inputted:\t %s\n", targetFile);
+	if ((fp = fopen(targetFile,"r"))){
+		fprintf(stdout, "%s is a valid file...\n",targetFile);
+	}
+	else{
+		fprintf(stdout, "%s is an invalid file...\n",targetFile);
+	}
+	return;
 	
 	return 0;
 }

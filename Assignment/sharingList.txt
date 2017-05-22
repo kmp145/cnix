@@ -1,1 +1,1 @@
-testFile.txt:user1:SHARED
+./testTransfer.txt:testTransfer.txt:Peer1:1

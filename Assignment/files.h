@@ -11,7 +11,8 @@ typedef struct settings_t{
 } settings_t;
 
 typedef struct shareList_t{
-	char fileName[10][12];
-	char userName[10][20];
-	char permissionLevel[10][10];
+	char fileLocation[256];
+	char fileName[20];
+	char userName[20];
+	char permissionLevel[2];//1 = shared, 0 = not shared	
 } shareList_t;
