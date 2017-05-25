@@ -9,32 +9,46 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-void sendFile(int sockfd, char fileName[120]){//should be called from listenForConnection()
+void sendFile(int peerSockfd, char fileName[120]){//should be called from listenForConnection()
 	int line, convertedSize, dataSent = 0, offset = 0, remainingData, fd;
 	ssize_t len;
-	char fileSize[256];
+	char fileSize[512], buffer[512];
+	FILE *fp;
 	struct stat fs;
 
 
 	fd = open("testTransfer.txt", O_RDONLY);
+	fp = fopen("testTransfer.txt", "r");
 	fstat(fd, &fs);
 
 	//fprintf(stdout,"%d\n",fs.st_size);
 	sprintf(fileSize, "%d", fs.st_size);
 	//fprintf(stdout, "%s\n", fileSize);
 	convertedSize = atoi(fileSize);
-	fprintf(stdout, "Filesize of \"%s\" %d bytes\n", fileName, convertedSize);
+	fprintf(stdout, "File size of \"%s\" %d bytes\n", fileName, convertedSize);
 		
-	line = write(sockfd, &convertedSize, sizeof(convertedSize));
-	fprintf(stdout, "Server sent:\t%d bytes", line);
+	line = send(peerSockfd, &convertedSize, sizeof(convertedSize), 0);
+	fprintf(stdout, "File size that should of been sent:\t%d\n",convertedSize);
+	if (line <0){
+		fprintf(stdout, "error sending file size\n");
+	}
+	else
+		fprintf(stdout, "should of worked\n");
+	fprintf(stdout, "Server sent:\t%d characters\n", line);
 	remainingData = convertedSize;
+	//len = send(peerSockfd, &fd, convertedSize, 0);
 
-	while (((dataSent = send(sockfd, &fd, offset, 255)) > 0) && (remainingData > 0)){
+	//while((fgets(buffer, 512, fp) != NULL)){
+		//fprintf(stdout, "%s\n", buffer);
+		//send(peerSockfd, &buffer, convertedSize, 0);
+//}
+
+	while (((dataSent = send(peerSockfd, fd, &offset, 512)) > 0) && (remainingData > 0)){
 			fprintf(stdout, "1. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", dataSent, offset, remainingData);
 			remainingData -= dataSent;
 			fprintf(stdout, "2. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", dataSent, offset, remainingData);
 		
-		}	 
+		}
 
 	//else{
 		//fprintf(stdout, "File not readable!\n");
@@ -92,8 +106,8 @@ void listenForConnection(int sockfd){
 	newsockfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientlen);//update
 	//fprintf(stdout,"New connection on:\t%s",clientAddress.sin_addr);
 	memset(buffer,0,256);
-	sendFile(sockfd, "testTransfer.txt");
-	line = write(newsockfd, "Connected",10);
+	sendFile(newsockfd, "testTransfer.txt");
+	/*line = write(newsockfd, "Connected",10);
 	line = read( newsockfd, buffer, 255);
 	if (line<0){//error reading from socket
 		fprintf(stdout,"Error connecting...\n");
@@ -101,7 +115,7 @@ void listenForConnection(int sockfd){
 	else{
 		fprintf(stdout,"You entered:\t%s\n", buffer);
 		line = write(newsockfd, "Returning message",18);
-	}
+	}*/
 	return;
 }
 
