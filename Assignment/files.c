@@ -118,7 +118,8 @@ void maintainSharingList(shareList_t *sharingList, int counter){
 	
 	//ADD FILE:
 	FILE *fp;
-	char targetFile[512];
+	char targetFile[512], permStr[256], userChoice[10];
+	int i = 0, x, y;
 	fprintf(stdout, "%d Input file LOCATION:\t",counter);//CHANGE TO something from io.c
 	fgets(targetFile, 512, stdin);//CHANGE TO io.c
 	if((fp=fopen(targetFile, "r"))){//Doesn't work properally
@@ -127,6 +128,39 @@ void maintainSharingList(shareList_t *sharingList, int counter){
 	else{
 		fprintf(stdout, "%s is an invalid file...\n",targetFile);
 	}
+
+	//EDIT FILE:
+	fprintf(stdout, "What permission would you like to change?\n");
+	for (i = 0; i < counter; i++){
+		
+		//fprintf(stdout, "%d\n",sharingList[i].permissionLevel[0]);
+		if(sharingList[i].permissionLevel[0] == 49) {
+			sprintf(permStr, "is shared with %s.\n", sharingList[i].userName);
+		}
+		else{
+			sprintf(permStr, "is not shared with %s.\n", sharingList[i].userName);
+		}
+
+		fprintf(stdout, "%d. %s %s", i+1, sharingList[i].fileName, permStr);
+	}
+	
+	fgets(userChoice, 10, stdin);// CHANGE TO IO
+	x = atoi(userChoice);//add error handling
+	
+	fprintf(stdout, "Would you like:\n1. Share %s with %s\n2. Not share %s with %s\n", sharingList[x].fileName, sharingList[x].userName, sharingList[x].fileName, sharingList[x].userName);
+	
+	fgets(userChoice, 10, stdin);//CHANGE TO IO
+	y = atoi(userChoice);//add error handling
+	y-= 1;
+	if (y == 1 || y == 0){
+		sprintf(sharingList[x].permissionLevel, "%d", y);
+		saveSharingList(sharingList, counter);
+		fprintf(stdout, "Permission successfully changed.\n");
+	}
+	else{
+		fprintf(stdout, "Invalid permission entered, no changes will be made.\n");
+	}
+	
 	return;
 }
 
@@ -270,8 +304,8 @@ int main(){
 	loadSettings(&settings);//gets settings
 	sharingList = loadSharingList(settings);//gets sharing List
 	//maintainSharingList(sharingList);
-	fprintf(stdout, "%s\n",sharingList[0].fileName);
-	fprintf(stdout,"%s\n%s\n%s\n%d\n",settings.username, settings.IPAddress, settings.logFile, settings.port);
+	//fprintf(stdout, "%s\n",sharingList[0].fileName);
+	//fprintf(stdout,"%s\n%s\n%s\n%d\n",settings.username, settings.IPAddress, settings.logFile, settings.port);
 	//REPLACE BELOW WITH DISPLAYMENU()
 	/*while (1){//This section is supposed to be in a function displayMeun(), located in io.c however i would get an error about multiple definitions of functions in that c file
 		fprintf(stdout,"What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.\n");
