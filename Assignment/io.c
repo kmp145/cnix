@@ -1,45 +1,85 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "files.h"
 
 
-const char * inputStr(char * userInput,char msg[100], int length){
-	//char userInput[length];
-	printf("%s\n", msg);//used for debugging REMOVE FOR FINAL
+
+const char * inputStr(char * userInput,char msg[100], int length, int flag){
+	/*
+	#################################################################################
+	#				FLAGS						#
+	#	0 = Print msg with '\n', remove trailing '\n' from input		#
+	#	1 = Print msg without '\n', remove trailing '\n' from input		#
+	#	2 = Print msg with '\n', don't remove trailing '\n' from input		#
+	#	3 = Print msg without '\n', don't remove trailing '\n' from input	#
+	#################################################################################*/
+	
+	if (flag == 0 || flag == 3)
+		fprintf(stdout, "%s\n", msg);
+	else
+		fprintf(stdout, "%s", msg);
 	fgets(userInput,length,stdin);
-	userInput[strcspn(userInput, "\n")] = 0;//Removes trailing \n
-	return userInput;
-} //This function is causing errors which will not let me include functions in this code
 
-int *inputInt(int * userInput,char msg[], int length){
-	printf("%s\n",msg);
-	fgets(userInput,length,stdin);
+	if (flag == 0 || flag == 1)
+		userInput[strcspn(userInput, "\n")] = 0;//Removes trailing \n
+	
 	return userInput;
+} 
+
+int inputInt(int *userInput,char msg[], int length, int flag){//NEEDS FIXING
+
+	/*
+	#########################################################################
+	#			FLAGS						#
+	#		0 = Return input -1					#
+	#		1 = Return input					#
+	#########################################################################*/
+
+	//char *x = malloc(sizeof(int));
+	char x[255];
+	fprintf(stdout, "%s\n",msg);
+	fgets(x, length, stdin);
+	//userInput = atoi(x);
+	return (atoi(x)-1);
+
 }
-/*
-int diplayMenu(){
-	fprintf(stdout,"Welcome to phase 1 of my assignment!\nAdam Lock student nuumber:\t 10424430\n\n");
-	int userChoice;
-	while (1){
-		//fprintf("What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.");
-		userChoice = inputInt("What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.\n");
-		printf("%i\n",userChoice);
-		
+
+int diplayMenu(char *menuOptions[], int optionNum, int flag){
+
+	/*
+	#########################################################################
+	#			FLAGS						#
+	#		0 = Print menu with numbers				#
+	#		1 = Print menu without numbers				#
+	#########################################################################*/
+	
+	int i = 0, x;
+	for (i = 0; i < optionNum; i++){
+		if(flag == 0){
+			x = i +1;
+			fprintf(stdout, "%d.\t", x);
+		}
+		fprintf(stdout, "%s\n", menuOptions[i]);
+
 	}
 	return 0;
-}*/
-
+}
+/*
 int main(){
 	
 	char *str;
 	int *myInt;
+	char *a[2];
+	a[0] = "blah";
+	a[1]= "hmm";
+	diplayMenu(a, 2, 0);
 	myInt = malloc(sizeof(int));
 	str = malloc(120 * sizeof(char));
-	inputStr(str, "msg", 120);
+	inputStr(str, "msg", 120, 0);
 	fprintf(stdout, "Inputted msg:\t%s\n",str);
-	inputInt(myInt, "msg", 12);
+	myInt = inputInt(myInt, "msg", 12, 0);// FIX
+	fprintf(stdout, "Inputted int:\t%d\n",myInt);
 	//strcpy(str,inputStr("Msg", 152));
 	return 0;
 
-}
+}*/

@@ -9,7 +9,7 @@
 #include "logger.h"
 #include "files.h"
 
-void saveFriends(friendsList_t *friends, int counter){
+void saveFriends(friendsList_t **friends, int counter){
 	
 	FILE *fp;
 	int i = 0;
@@ -18,15 +18,15 @@ void saveFriends(friendsList_t *friends, int counter){
 	fprintf(stdout, "%d COUNTER", counter);
 	for (i = 0; i < counter; i++){
 		output[0] = 0;
-		strcat(output,friends[i].username);
+		strcat(output,friends[i]->username);
 		//printf("%s\n",output);
 		strcat(output,":");
 		//printf("%s\n",output);
-		strcat(output,friends[i].IPAddress);
+		strcat(output,friends[i]->IPAddress);
 		//printf("%s\n",output);
 		strcat(output,":");
 		//printf("%s\n",output);
-		sprintf(portstr, "%d", friends[i].port);
+		sprintf(portstr, "%d", friends[i]->port);
 		strcat(output, portstr);
 		strcat(output, "\n");
 		printf("%s\n",output);
@@ -35,21 +35,25 @@ void saveFriends(friendsList_t *friends, int counter){
 	fclose(fp);
 }
 
-void maintainFriends(friendsList_t *friends, int counter){
-	char username[20], IPAddress[17], portstr[10];
+void maintainFriends(friendsList_t **friends, int counter){
+	char *username, *IPAddress;
+	int port;
+	username = malloc(sizeof(char)*20);
+	IPAddress = malloc(sizeof(char)*17); 
 	//Add friend
-	fprintf(stdout, "Name:\t");//change to io with removal of \n
-	fgets(username, 20 ,stdin);
-	fprintf(stdout, "\nIP:\t");
-	fgets(IPAddress,17,stdin);
-	fprintf(stdout, "Port:\t");
-	fgets(portstr, 10, stdin);
-	
-	strcpy(friends[counter].username, username);//ADD ERROR CHECK 
-	strcpy(friends[counter].IPAddress, IPAddress);
-	friends[counter].port = atoi(portstr);
-	counter ++;
 
+	inputStr(username, "Name:\t", 20, 1);
+	fprintf(stdout, "\n");
+	inputStr(IPAddress, "IP:\t", 17, 1);
+	fprintf(stdout, "\n");
+	port = inputInt(&port,"Port:\t",8, 1);
+	
+	strcpy(friends[counter]->username, username);//ADD ERROR CHECK 
+	strcpy(friends[counter]->IPAddress, IPAddress);
+	friends[counter]->port = port;
+	counter ++;
+	free(username);
+	free(IPAddress);
 	saveFriends(friends, counter);
 	
 	fprintf(stdout, "\n\nSuccessfully added! %s\n",username);
@@ -57,10 +61,10 @@ void maintainFriends(friendsList_t *friends, int counter){
 	return;
 }
 
-friendsList_t *loadFriends(settings_t settings){
+friendsList_t *loadFriends(friendsList_t **friends, settings_t settings){
 
 	FILE *fp;
-	friendsList_t friends[100];
+	//friendsList_t friends[100];
 	char buffer[256], delimitor[2] = ":", portstr[10];
 	int counter = 0;
 	
@@ -69,10 +73,10 @@ friendsList_t *loadFriends(settings_t settings){
 			if (buffer[0] != '\n'){
 				fprintf(stdout, "%s\n",buffer);//DEBUG
 			
-				strcpy(friends[counter].username, strtok(buffer,delimitor));
-				strcpy(friends[counter].IPAddress, strtok(NULL,delimitor));
+				strcpy(friends[counter]->username, strtok(buffer,delimitor));
+				strcpy(friends[counter]->IPAddress, strtok(NULL,delimitor));
 				strcpy(portstr, strtok(NULL,delimitor));
-				friends[counter].port = atoi(portstr);
+				friends[counter]->port = atoi(portstr);
 				counter ++;
 			}
 		}//end of while
@@ -114,33 +118,33 @@ loadSharing list(){
 FOR SHARING LIST UPDATING FILE: WRITE ALL GOOD RECORDS TO NEW FILE DELETE OLD RENAME NEW.
 
 */
-void saveSharingList(shareList_t *sharingList, int counter){
+void saveSharingList(shareList_t **sharingList, int counter){
 	fprintf(stdout, "In save share list counter:\t%d\n", counter);
 	FILE *fp;
 	int i;
 	char output[512];
 	//counter = &shareCounter;
 	fp=fopen("sharingList.txt", "w");
-	fprintf(stdout, "%s xcxcx\n", sharingList[2].fileName);
+	fprintf(stdout, "%s xcxcx\n", sharingList[2]->fileName);//DEBUG
 	for(i = 0; i < counter; i++){//KNOWN BUG CATS fileLOCATION TWICE
 		output[0] = 0;
 		//printf("%s\n",output);
 		//fprintf(stdout, "fileLoc: %s\n",sharingList[i].fileLocation);
-		strcat(output,sharingList[i].fileLocation);
+		strcat(output,sharingList[i]->fileLocation);
 		//printf("%s\n",output);
 		strcat(output,":");
 		//printf("%s\n",output);
-		strcat(output,sharingList[i].fileName);
+		strcat(output,sharingList[i]->fileName);
 		//printf("%s\n",output);
 		strcat(output,":");
 		//printf("%s\n",output);
-		strcat(output,sharingList[i].userName);
+		strcat(output,sharingList[i]->userName);
 		//printf("%s\n",output);
 		strcat(output,":");
 		//printf("%s\n",output);
 		//strcat(output,sharingList[i].permissionLevel[0]);
 		//output[sizeof(output)] = sharingList[i].permissionLevel[0];
-		if(sharingList[i].permissionLevel[0] == 49) {
+		if(sharingList[i]->permissionLevel[0] == 49) {
 			strcat(output,"1");
 		}
 		else{
@@ -153,24 +157,6 @@ void saveSharingList(shareList_t *sharingList, int counter){
 		fputs(output,fp);
 	}
 	fclose(fp);
-	/*	
-	FILE *fp;
-	int counter = 0;
-	char listNum[60];
-	fp=fopen("sharingList.txt", "w");
-	while (strcmp(sharingList.fileName[counter],"NO")){//"NO" is a default value given to indicate when no more files are left, however the loop is off by 1
-		strcpy(listNum,sharingList.fileName[counter]);
-		strcat(listNum,":");
-		strcat(listNum,sharingList.userName[counter]);
-		strcat(listNum,":");
-		strcat(listNum,sharingList.permissionLevel[counter]);
-		strcat(listNum,"\n");
-		//fprintf(stdout,"%s\n",listNum);//debug
-		fputs(listNum,fp);
-		counter ++;		
-	}
-	fclose(fp);
-*/
 }
 /*
 shareList_t createSharingList(settings_t settings){
@@ -209,7 +195,7 @@ shareList_t createSharingList(settings_t settings){
 	
 }*/
 
-void maintainSharingList(shareList_t *sharingList, int counter){
+void maintainSharingList(shareList_t **sharingList, int counter){
 	
 	//ADD FILE:
 	FILE *fp;
@@ -230,31 +216,31 @@ void maintainSharingList(shareList_t *sharingList, int counter){
 	for (i = 0; i < counter; i++){
 		
 		//fprintf(stdout, "%d\n",sharingList[i].permissionLevel[0]);
-		if(sharingList[i].permissionLevel[0] == 49) {
-			sprintf(permStr, "is shared with %s.\n", sharingList[i].userName);
+		if(sharingList[i]->permissionLevel[0] == 49) {
+			sprintf(permStr, "is shared with %s.\n", sharingList[i]->userName);
 		}
 		else{
-			sprintf(permStr, "is not shared with %s.\n", sharingList[i].userName);
+			sprintf(permStr, "is not shared with %s.\n", sharingList[i]->userName);
 		}
 
-		fprintf(stdout, "%d. %s %s", i+1, sharingList[i].fileName, permStr);
+		fprintf(stdout, "%d. %s %s", i+1, sharingList[i]->fileName, permStr);
 	}
 	
 	fgets(userChoice, 10, stdin);// CHANGE TO IO
 	x = atoi(userChoice);//add error handling
 	x -= 1;
-	fprintf(stdout, "Would you like:\n1. Not share %s with %s\n2. Share %s with %s\n", sharingList[x].fileName, sharingList[x].userName, sharingList[x].fileName, sharingList[x].userName);
+	fprintf(stdout, "Would you like:\n1. Not share %s with %s\n2. Share %s with %s\n", sharingList[x]->fileName, sharingList[x]->userName, sharingList[x]->fileName, sharingList[x]->userName);
 	
 	fgets(userChoice, 10, stdin);//CHANGE TO IO
 	y = atoi(userChoice);//add error handling
 	y-= 1;
 	if (y == 0){
-		strcpy(sharingList[x].permissionLevel, "0");
+		strcpy(sharingList[x]->permissionLevel, "0");
 		saveSharingList(sharingList, counter);
 		fprintf(stdout, "Permission successfully changed to not share.\n");
 	}
 	else if( y == 1){
-		strcpy(sharingList[x].permissionLevel, "1");
+		strcpy(sharingList[x]->permissionLevel, "1");
 		saveSharingList(sharingList, counter);
 		fprintf(stdout, "Permission successfully changed to share.\n");
 
@@ -267,10 +253,10 @@ void maintainSharingList(shareList_t *sharingList, int counter){
 }
 
 
-shareList_t *loadSharingList(settings_t settings){
-	shareList_t sharingList[100];
+shareList_t *loadSharingList(shareList_t **sharingList,settings_t settings){
+	//shareList_t sharingList[100];
 	char buffer[512], delimitor[2] = ":", fileLocation[256], filename[20], username[20], permission[2];
-	int  error = FALSE;
+	int error = FALSE;
 	int counter = 0;
 	FILE *fp;
 	if((fp = fopen("sharingList.txt","r"))){
@@ -286,10 +272,10 @@ shareList_t *loadSharingList(settings_t settings){
 
 				if( access(fileLocation, R_OK) != -1 && (!strcmp(permission,"0\n") || !strcmp(permission,"1\n"))){//if file and permission is valid
 					//fprintf(stdout, "%s is a valid file with vaild permissions\n", filename);//DEBUG
-					strcpy(sharingList[counter].fileLocation,fileLocation);
-					strcpy(sharingList[counter].fileName,filename);
-					strcpy(sharingList[counter].userName,username);
-					strcpy(sharingList[counter].permissionLevel,permission);
+					strcpy(sharingList[counter]->fileLocation,fileLocation);
+					strcpy(sharingList[counter]->fileName,filename);
+					strcpy(sharingList[counter]->userName,username);
+					strcpy(sharingList[counter]->permissionLevel,permission);
 					counter += 1;
 				}
 				else{//if file is invalid
@@ -401,12 +387,19 @@ int loadSettings(settings_t *settings){//change freads to fgets
 
 int main(){
 	//intialiseLogger()
+	int i = 0, maxShares = 25, maxFriends = 25;
 	settings_t settings = {"User","192.168.0.12","./log.txt",777};
-	shareList_t *sharingList;
-	friendsList_t *friends;
+	shareList_t *sharingList[maxShares];
+	friendsList_t *friends[maxFriends];
+	for ( i = 0; i<maxFriends+1;i++){
+		friends[i] = malloc(sizeof(friendsList_t));
+	}
+	for ( i = 0; i<maxShares+1;i++){
+		sharingList[i] = malloc(sizeof(shareList_t));
+	}
 	loadSettings(&settings);//gets settings
-	sharingList = loadSharingList(settings);//gets sharing List
-	friends = loadFriends(settings);
+	loadSharingList(sharingList,settings);//gets sharing List
+	loadFriends(friends, settings);
 	//maintainSharingList(sharingList);
 	//fprintf(stdout, "%s\n",sharingList[0].fileName);
 	//fprintf(stdout,"%s\n%s\n%s\n%d\n",settings.username, settings.IPAddress, settings.logFile, settings.port);
