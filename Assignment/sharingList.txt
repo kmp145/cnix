@@ -1,1 +1,4 @@
 ./testTransfer.txt:testTransfer.txt:Peer1:1
+./testTransfer.txt:testTransfer.txt:Peer2:0
+./testTransfer.txt:testTransfer.txt:Peer3:1
+./testTransfer.txt:testTransfer.txt:Peer4:0

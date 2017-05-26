@@ -3,9 +3,15 @@
 #define FALSE 0
 #define TRUE !FALSE
 
+typedef struct friendsList_t{
+	char username[20];
+	char IPAddress[17];
+	int port;
+} friendsList_t;
+
 typedef struct settings_t{
 	char username[20];
-	char IPAddress[16];
+	char IPAddress[17];
 	char logFile[20];
 	int port;
 } settings_t;

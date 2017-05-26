@@ -8,7 +8,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include "networking.h"
 
+
+/*
 void sendFile(int peerSockfd, char fileName[120]){//should be called from listenForConnection()
 	int line, convertedSize, dataSent = 0, offset = 0, remainingData, fd;
 	ssize_t len;
@@ -107,7 +110,7 @@ void listenForConnection(int sockfd){
 	//fprintf(stdout,"New connection on:\t%s",clientAddress.sin_addr);
 	memset(buffer,0,256);
 	sendFile(newsockfd, "testTransfer.txt");
-	/*line = write(newsockfd, "Connected",10);
+	line = write(newsockfd, "Connected",10);
 	line = read( newsockfd, buffer, 255);
 	if (line<0){//error reading from socket
 		fprintf(stdout,"Error connecting...\n");
@@ -115,7 +118,7 @@ void listenForConnection(int sockfd){
 	else{
 		fprintf(stdout,"You entered:\t%s\n", buffer);
 		line = write(newsockfd, "Returning message",18);
-	}*/
+	}
 	return;
 }
 
@@ -153,7 +156,7 @@ void connectToFriend(int sockfd, char * targetIP, int targetPort){//still needs 
 	
 }
 
-
+*/
 
 
 int main(){
@@ -164,11 +167,12 @@ int main(){
 	accept(accept connection)
 	*/
 	//fprintf(stdout,"test\n");
-	int sockfd;
-	sockfd = createSocket();//change to pass port
+	//int sockfd;
+	//sockfd = createSocket();//change to pass port
 	//sendFile(sockfd, "testTransfer.txt");
 	//connectToFriend(sockfd, "127.0.0.1", 7777);//connecting to friend
-	listenForConnection(sockfd);
+	loadFriends();
+	//listenForConnection(sockfd);
 	/*listen(sockfd,5);
 	
 	clientlen = sizeof(clientAddress);
