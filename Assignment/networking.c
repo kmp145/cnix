@@ -11,7 +11,7 @@
 #include "networking.h"
 
 
-/*
+
 void sendFile(int peerSockfd, char fileName[120]){//should be called from listenForConnection()
 	int line, convertedSize, dataSent = 0, offset = 0, remainingData, fd;
 	ssize_t len;
@@ -46,7 +46,7 @@ void sendFile(int peerSockfd, char fileName[120]){//should be called from listen
 		//send(peerSockfd, &buffer, convertedSize, 0);
 //}
 
-	while (((dataSent = send(peerSockfd, fd, &offset, 512)) > 0) && (remainingData > 0)){
+	 while (((dataSent = send(peerSockfd, &fd, offset, BUFSIZ)) > 0) && (remainingData > 0)){
 			fprintf(stdout, "1. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", dataSent, offset, remainingData);
 			remainingData -= dataSent;
 			fprintf(stdout, "2. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", dataSent, offset, remainingData);
@@ -99,7 +99,8 @@ void listenForConnection(int sockfd){
 	
 	fprintf(stdout,"listening...\n");
 	
-	int newsockfd, line, clientlen;
+	int newsockfd, line;
+	socklen_t clientlen;
 	char buffer[256];
 	struct sockaddr_in clientAddress;
 	
@@ -109,7 +110,7 @@ void listenForConnection(int sockfd){
 	newsockfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientlen);//update
 	//fprintf(stdout,"New connection on:\t%s",clientAddress.sin_addr);
 	memset(buffer,0,256);
-	sendFile(newsockfd, "testTransfer.txt");
+	//sendFile(newsockfd, "testTransfer.txt");
 	line = write(newsockfd, "Connected",10);
 	line = read( newsockfd, buffer, 255);
 	if (line<0){//error reading from socket
@@ -156,7 +157,7 @@ void connectToFriend(int sockfd, char * targetIP, int targetPort){//still needs 
 	
 }
 
-*/
+
 
 
 int main(){
@@ -166,12 +167,13 @@ int main(){
 	listen (for incoming connections on socket)
 	accept(accept connection)
 	*/
-	//fprintf(stdout,"test\n");
+	fprintf(stdout,"1. server\n2. Client\n");
+	fgets()
 	//int sockfd;
 	//sockfd = createSocket();//change to pass port
 	//sendFile(sockfd, "testTransfer.txt");
 	//connectToFriend(sockfd, "127.0.0.1", 7777);//connecting to friend
-	loadFriends();
+	//loadFriends();
 	//listenForConnection(sockfd);
 	/*listen(sockfd,5);
 	
