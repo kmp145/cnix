@@ -22,3 +22,5 @@ typedef struct shareList_t{
 	char userName[20];
 	char permissionLevel[2];//1 = shared, 0 = not shared	
 } shareList_t;
+
+

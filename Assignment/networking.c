@@ -7,11 +7,36 @@
 #include <arpa/inet.h>//FOR inet_addr()
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/sendfile.h>
 #include <fcntl.h>
 #include "networking.h"
 
+void sendFile(int peerSockfd, char fileName[120]){
 
 
+	
+	int fileSize = 0, fd, line, remainingData, offset, dataSent = 0;
+	ssize_t len;
+	struct stat fs;
+	
+	if((fd = open(fileName, O_RDONLY))){
+		fstat(fd, &fs);
+		//sprintf(fileSize, "%d", fs.st_size);
+		fileSize = fs.st_size;
+		remainingData = fileSize; 
+		fprintf(stdout, "Filesize of \"%s\": %d\n", fileName, fileSize);
+		line = send(peerSockfd, &fileSize, sizeof(fileSize), 0);
+
+		while (((dataSent = sendfile(peerSockfd, &fd, offset, BUFSIZ)) > 0) && (remainingData > 0)){
+			fprintf(stdout, "Data sent:\t%d\n", dataSent);
+			remainingData -= dataSent;
+		
+		}
+		
+	}//IF FILE exists
+}
+
+/*
 void sendFile(int peerSockfd, char fileName[120]){//should be called from listenForConnection()
 	int line, convertedSize, dataSent = 0, offset = 0, remainingData, fd;
 	ssize_t len;
@@ -24,7 +49,7 @@ void sendFile(int peerSockfd, char fileName[120]){//should be called from listen
 	fp = fopen("testTransfer.txt", "r");
 	fstat(fd, &fs);
 
-	//fprintf(stdout,"%d\n",fs.st_size);
+	//fprintf(stdout,"%d\n",fs.st_size);&
 	sprintf(fileSize, "%d", fs.st_size);
 	//fprintf(stdout, "%s\n", fileSize);
 	convertedSize = atoi(fileSize);
@@ -60,10 +85,10 @@ void sendFile(int peerSockfd, char fileName[120]){//should be called from listen
 	
 	return;
 
-}
+}*/
 
 void recieveFile(int sockfd, char fileName[120]){
-	int line, fileSize;
+	/*int line, fileSize;
 	char buffer[255];
 	FILE *fp;
 	fp = fopen(fileName, "w");	
@@ -71,7 +96,7 @@ void recieveFile(int sockfd, char fileName[120]){
 	line = read(sockfd, &fileSize, sizeof(int));
 	fprintf(stdout, "%d\n", fileSize);
 	line = read(sockfd, buffer, 255);//Test
-	fputs(buffer,fp);
+	fputs(buffer,fp);*/
 
 }
 
@@ -110,16 +135,18 @@ void listenForConnection(int sockfd){
 	newsockfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientlen);//update
 	//fprintf(stdout,"New connection on:\t%s",clientAddress.sin_addr);
 	memset(buffer,0,256);
-	//sendFile(newsockfd, "testTransfer.txt");
-	line = write(newsockfd, "Connected",10);
-	line = read( newsockfd, buffer, 255);
-	if (line<0){//error reading from socket
+	sendFile(newsockfd, "testTransfer.txt");
+	line = 2;//DEBUG
+	printf("%d\n",line);
+	//line = write(newsockfd, "Connected",10);
+	//line = read( newsockfd, buffer, 255);
+	/*if (line<0){//error reading from socket
 		fprintf(stdout,"Error connecting...\n");
 	}
 	else{
 		fprintf(stdout,"You entered:\t%s\n", buffer);
 		line = write(newsockfd, "Returning message",18);
-	}
+	}*/
 	return;
 }
 
@@ -167,14 +194,15 @@ int main(){
 	listen (for incoming connections on socket)
 	accept(accept connection)
 	*/
+	sendFile(5, "testTransfer.txt");
 	fprintf(stdout,"1. server\n2. Client\n");
-	fgets()
-	//int sockfd;
-	//sockfd = createSocket();//change to pass port
+	//fgets()
+	int sockfd;
+	sockfd = createSocket();//change to pass port
 	//sendFile(sockfd, "testTransfer.txt");
 	//connectToFriend(sockfd, "127.0.0.1", 7777);//connecting to friend
 	//loadFriends();
-	//listenForConnection(sockfd);
+	listenForConnection(sockfd);
 	/*listen(sockfd,5);
 	
 	clientlen = sizeof(clientAddress);

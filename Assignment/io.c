@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "files.h"
 
 
 
@@ -44,7 +45,7 @@ int inputInt(int *userInput,char msg[], int length, int flag){//NEEDS FIXING
 
 }
 
-int diplayMenu(char *menuOptions[], int optionNum, int flag){
+int displayMenu(char *menuOptions[], int optionNum, int flag){
 
 	/*
 	#########################################################################
@@ -64,6 +65,8 @@ int diplayMenu(char *menuOptions[], int optionNum, int flag){
 	}
 	return 0;
 }
+
+
 /*
 int main(){
 	

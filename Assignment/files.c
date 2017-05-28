@@ -15,7 +15,7 @@ void saveFriends(friendsList_t **friends, int counter){
 	int i = 0;
 	char output[256], portstr[10];
 	fp = fopen("friendsList.txt",  "w");
-	fprintf(stdout, "%d COUNTER", counter);
+	//fprintf(stdout, "%d COUNTER", counter);
 	for (i = 0; i < counter; i++){
 		output[0] = 0;
 		strcat(output,friends[i]->username);
@@ -29,7 +29,7 @@ void saveFriends(friendsList_t **friends, int counter){
 		sprintf(portstr, "%d", friends[i]->port);
 		strcat(output, portstr);
 		strcat(output, "\n");
-		printf("%s\n",output);
+		//printf("%s\n",output);
 		fputs(output,fp);
 	}
 	fclose(fp);
@@ -39,7 +39,7 @@ void maintainFriends(friendsList_t **friends, int counter, int flag){
 
 	if (flag == 0){//Add friend
 		char *username, *IPAddress;
-		int port;
+		int port=0;
 		username = malloc(sizeof(char)*20);
 		IPAddress = malloc(sizeof(char)*17); 
 	
@@ -83,7 +83,7 @@ void loadFriends(friendsList_t **friends, settings_t settings, int flag){
 	if((fp = fopen("friendsList.txt","r"))){
 		while(fgets(buffer,512,fp) != NULL){
 			if (buffer[0] != '\n'){
-				fprintf(stdout, "%s\n",buffer);//DEBUG
+				//fprintf(stdout, "%s\n",buffer);//DEBUG
 			
 				strcpy(friends[counter]->username, strtok(buffer,delimitor));
 				strcpy(friends[counter]->IPAddress, strtok(NULL,delimitor));
@@ -133,13 +133,13 @@ FOR SHARING LIST UPDATING FILE: WRITE ALL GOOD RECORDS TO NEW FILE DELETE OLD RE
 
 */
 void saveSharingList(shareList_t **sharingList, int counter){
-	fprintf(stdout, "In save share list counter:\t%d\n", counter);
+	//fprintf(stdout, "In save share list counter:\t%d\n", counter);
 	FILE *fp;
 	int i;
 	char output[512];
 	//counter = &shareCounter;
 	fp=fopen("sharingList.txt", "w");
-	fprintf(stdout, "%s xcxcx\n", sharingList[2]->fileName);//DEBUG
+	//fprintf(stdout, "%s xcxcx\n", sharingList[2]->fileName);//DEBUG
 	for(i = 0; i < counter; i++){//KNOWN BUG CATS fileLOCATION TWICE
 		output[0] = 0;
 		//printf("%s\n",output);
@@ -167,7 +167,7 @@ void saveSharingList(shareList_t **sharingList, int counter){
 		//printf("%s\n",output);
 		strcat(output, "\n");
 		//fprintf(stdout, "This is perm: %s", sharingList[i].permissionLevel);
-		fprintf(stdout, "Loop: %d. Writing: %s\n",i, output);
+		//fprintf(stdout, "Loop: %d. Writing: %s\n",i, output);
 		fputs(output,fp);
 	}
 	fclose(fp);
@@ -220,7 +220,7 @@ void maintainSharingList(shareList_t **sharingList, int counter, int flag){
 
 	
 	char permStr[256], userChoice[10];
-	int i = 0, x, y;
+	int i, y;
 
 	if(flag == 0){//ADD FILE
 		FILE *fp;
@@ -248,9 +248,10 @@ void maintainSharingList(shareList_t **sharingList, int counter, int flag){
 		free(fileNickname);
 	}
 	else if(flag == 1){//EDIT FILE:
-	fprintf(stdout, "What permission would you like to change?\n");
+		int x;
 		for (i = 0; i < counter; i++){
-		
+			//fprintf(stdout, "%d. %s ", i, sharingList[i]->fileName);
+			
 			//fprintf(stdout, "%d\n",sharingList[i].permissionLevel[0]);
 			if(sharingList[i]->permissionLevel[0] == 49) {
 				sprintf(permStr, "is shared with %s.\n", sharingList[i]->userName);
@@ -261,7 +262,8 @@ void maintainSharingList(shareList_t **sharingList, int counter, int flag){
 
 			fprintf(stdout, "%d. %s %s", i+1, sharingList[i]->fileName, permStr);
 		}
-	
+		//x = inputInt(z, "What permission would you like to change?", 2, 0);
+		fprintf(stdout, "What permission would you like to change?\n");
 		fgets(userChoice, 10, stdin);// CHANGE TO IO
 		x = atoi(userChoice);//add error handling
 		x -= 1;
@@ -433,10 +435,64 @@ int loadSettings(settings_t *settings){//change freads to fgets
 	return 0;
 }
 
+void mainMenu(shareList_t **sharingList,settings_t settings, friendsList_t **friends){
+	while (1){
+		int x=0;
+		char *menuOptions[4];
+		fprintf(stdout, "Bug exists here, to use menu options enter first menu number followed by sub menu option. E.G. enter \"21\" to add a new friend.\n");//KNOWN BUG HERE
+		fprintf(stdout, "What would you like to do?\n");
+		
+		menuOptions[0] = "Edit sharing list";
+		menuOptions[1] = "Edit Friends";
+		menuOptions[2] = "Download a file";
+		menuOptions[3] = "Exit";
+		displayMenu(menuOptions, 4, 0);
+		x = inputInt(&x,"",2,0);
+		
+		if (x==0){//Edit share list
+			char *editShareMenu[2];
+			int y = 0;
+			editShareMenu[0] = "Add a file";
+			editShareMenu[1] = "Edit permissions to a file";
+			displayMenu(editShareMenu, 2, 0);
+			//fprintf(stdout, "\n");
+			y = inputInt(&y,"asd",2,0);
+			if (y == 0 || y == 1){
+				loadSharingList(sharingList, settings, y); 
+			}
+
+		}
+		else if(x==1){//Edit friends
+			char *editFriendsMenu[2];
+			int y = 0;
+			editFriendsMenu[0] = "Add a friend";
+			editFriendsMenu[1] = "Edit an existing friend";
+			displayMenu(editFriendsMenu, 2, 0);
+			y = inputInt(&y,"",4,0);
+			if (y == 0 || y == 1){
+				loadFriends(friends, settings, y); 
+
+			}
+		}
+		else if(x==2){//Download file
+
+		}
+		else if(x==3){//exit
+			return;
+		}
+		else{
+			fprintf(stdout, "Invalid input!\n");
+		}
+	}	
+}
+
 int main(){
 	//intialiseLogger()
 	int i = 0, maxShares = 25, maxFriends = 25;
 	settings_t settings = {"User","192.168.0.12","./log.txt",777};
+	loadSettings(&settings);//gets settings
+	
+	//Intialise sharing List and friends list
 	shareList_t *sharingList[maxShares];
 	friendsList_t *friends[maxFriends];
 	for ( i = 0; i<maxFriends+1;i++){
@@ -445,40 +501,11 @@ int main(){
 	for ( i = 0; i<maxShares+1;i++){
 		sharingList[i] = malloc(sizeof(shareList_t));
 	}
-	loadSettings(&settings);//gets settings
+	
 	loadSharingList(sharingList,settings, 3);//gets sharing List
 	loadFriends(friends, settings, 3);
-	//maintainSharingList(sharingList);
-	//fprintf(stdout, "%s\n",sharingList[0].fileName);
-	//fprintf(stdout,"%s\n%s\n%s\n%d\n",settings.username, settings.IPAddress, settings.logFile, settings.port);
-	//REPLACE BELOW WITH DISPLAYMENU()
-	/*while (1){//This section is supposed to be in a function displayMeun(), located in io.c however i would get an error about multiple definitions of functions in that c file
-		fprintf(stdout,"What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.\n");
-		//userChoice = inputInt("What would you like to do?\n1)Display current user settings.\n2)Change a user setting.\n3)Display contents of the sharing list\n4)Change a file's permission.\n99)Exit.\n");
-		fgets(userChoice,3,stdin);
-		fprintf(stdout,"%s\n",userChoice);
-		if(strcmp(userChoice,"1")){
-			//display current user
-			fprintf(stdout,"tasr");		
-		}
-		else if(strcmp(userChoice,"2")){
-			//change user settings	
-		}
-		else if(strcmp(userChoice,"3")){
-			//display contents of sharing list		
-		}
-		else if(strcmp(userChoice,"4")){
-			//change file permission		
-		}
-		else if(strcmp(userChoice,"99")){
-			//exit	
-			break;	
-		}
-		else
-			fprintf(stdout,"Invalid choice!");
-		
-		
-	}*/ 
+	
+	mainMenu(sharingList, settings, friends);
 	logThis("Program finished with no fatal errors.",settings.logFile);
 	return 0;
 }
