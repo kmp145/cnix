@@ -6,7 +6,7 @@ TARGET = aLockAssignmet
 default: $(TARGET) 
 
 $(TARGET): files.o io.o logger.o networking.o
-	$(cc) $(CFLAGS) -o $(TARGET) files.o io.o logger.o networking.o
+	gcc -Wall files.o io.o logger.o networking.o -o $(TARGET)
 
 files.o: files.c io.h logger.h files.h
 	$(CC) $(CFLAGS) -c files.c
