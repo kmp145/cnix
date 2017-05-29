@@ -23,4 +23,4 @@ typedef struct shareList_t{
 	char permissionLevel[2];//1 = shared, 0 = not shared	
 } shareList_t;
 
-
+extern int forkHandler();

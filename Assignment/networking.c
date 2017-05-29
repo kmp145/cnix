@@ -10,13 +10,16 @@
 #include <sys/sendfile.h>
 #include <fcntl.h>
 #include "networking.h"
+#include "logger.h"
 
 void sendFile(int peerSockfd, char fileName[120]){
 
 
 	
-	int fileSize = 0, fd, line, remainingData, offset, dataSent = 0;
+	int fileSize = 0, fd, line, remainingData, dataSent = 0;
+	char logmsg[50];
 	ssize_t len;
+	off_t offset;
 	struct stat fs;
 	
 	if((fd = open(fileName, O_RDONLY))){
@@ -27,85 +30,53 @@ void sendFile(int peerSockfd, char fileName[120]){
 		fprintf(stdout, "Filesize of \"%s\": %d\n", fileName, fileSize);
 		line = send(peerSockfd, &fileSize, sizeof(fileSize), 0);
 
-		while (((dataSent = sendfile(peerSockfd, &fd, offset, BUFSIZ)) > 0) && (remainingData > 0)){
+		while (((dataSent = sendfile(peerSockfd, fd, &offset, BUFSIZ)) > 0) && (remainingData > 0)){
 			fprintf(stdout, "Data sent:\t%d\n", dataSent);
 			remainingData -= dataSent;
 		
 		}
+		strcpy(logmsg, fileName);
+		strcat(logmsg, " was sent to a friend");
+		logThis(logmsg, "log.txt");
 		
 	}//IF FILE exists
 }
 
-/*
-void sendFile(int peerSockfd, char fileName[120]){//should be called from listenForConnection()
-	int line, convertedSize, dataSent = 0, offset = 0, remainingData, fd;
-	ssize_t len;
-	char fileSize[512], buffer[512];
-	FILE *fp;
-	struct stat fs;
 
-
-	fd = open("testTransfer.txt", O_RDONLY);
-	fp = fopen("testTransfer.txt", "r");
-	fstat(fd, &fs);
-
-	//fprintf(stdout,"%d\n",fs.st_size);&
-	sprintf(fileSize, "%d", fs.st_size);
-	//fprintf(stdout, "%s\n", fileSize);
-	convertedSize = atoi(fileSize);
-	fprintf(stdout, "File size of \"%s\" %d bytes\n", fileName, convertedSize);
-		
-	line = send(peerSockfd, &convertedSize, sizeof(convertedSize), 0);
-	fprintf(stdout, "File size that should of been sent:\t%d\n",convertedSize);
-	if (line <0){
-		fprintf(stdout, "error sending file size\n");
-	}
-	else
-		fprintf(stdout, "should of worked\n");
-	fprintf(stdout, "Server sent:\t%d characters\n", line);
-	remainingData = convertedSize;
-	//len = send(peerSockfd, &fd, convertedSize, 0);
-
-	//while((fgets(buffer, 512, fp) != NULL)){
-		//fprintf(stdout, "%s\n", buffer);
-		//send(peerSockfd, &buffer, convertedSize, 0);
-//}
-
-	 while (((dataSent = send(peerSockfd, &fd, offset, BUFSIZ)) > 0) && (remainingData > 0)){
-			fprintf(stdout, "1. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", dataSent, offset, remainingData);
-			remainingData -= dataSent;
-			fprintf(stdout, "2. Server sent %d bytes from file's data, offset is now : %d and remaining data = %d\n", dataSent, offset, remainingData);
-		
-		}
-
-	//else{
-		//fprintf(stdout, "File not readable!\n");
-	//}	
-	
-	
-	return;
-
-}*/
 
 void recieveFile(int sockfd, char fileName[120]){
-	/*int line, fileSize;
+	
+	
+	int line, fileSize, remainingData = 0;
 	char buffer[255];
+	ssize_t len;
 	FILE *fp;
-	fp = fopen(fileName, "w");	
+	fp = fopen(fileName, "w");
 
-	line = read(sockfd, &fileSize, sizeof(int));
-	fprintf(stdout, "%d\n", fileSize);
-	line = read(sockfd, buffer, 255);//Test
-	fputs(buffer,fp);*/
+	read(sockfd, buffer, BUFSIZ);
+	//fprintf(stdout, "%s\n", buffer);
+	fileSize = atoi(buffer);
+	//fileSize = 21;
+	fprintf(stdout, "Filesize recieved:\t%d\n", fileSize);
+	remainingData = fileSize;
+
+	while (((len = recv(sockfd, buffer, BUFSIZ, 0)) > 0) && (remainingData > 0)){
+
+		remainingData -= len;
+		fputs(buffer, fp);
+        }
+	fclose(fp);
+	close(sockfd);
+	logThis("File was recieved from friend\n", "log.txt");//Change to use variables
 
 }
 
 
-int createSocket(){
+int createSocket(int port){
 	 
 	fprintf(stdout,"in createSocket()\n");
 
-	int sockfd, port = 7777;//Change so port is passed
+	int sockfd;// port = 7777;//Change so port is passed
 
 	struct sockaddr_in serverAddress;
 	
@@ -184,16 +155,28 @@ void connectToFriend(int sockfd, char * targetIP, int targetPort){//still needs 
 	
 }
 
+void listenHandler(int port){
+	int sockfd;
+	sockfd = createSocket(port);
+	listenForConnection(sockfd);
+	return;
+}
 
-
+void downloadHandler(int port, char IPAddress[17], int tarPort){
+	int sockfd;
+	sockfd = createSocket(port);
+	connectToFriend(sockfd, IPAddress, tarPort);
+	return;
+}
+/*
 
 int main(){
 
-	/*
+	
 	bind(address with socket)
 	listen (for incoming connections on socket)
 	accept(accept connection)
-	*/
+	
 	sendFile(5, "testTransfer.txt");
 	fprintf(stdout,"1. server\n2. Client\n");
 	//fgets()
@@ -203,10 +186,10 @@ int main(){
 	//connectToFriend(sockfd, "127.0.0.1", 7777);//connecting to friend
 	//loadFriends();
 	listenForConnection(sockfd);
-	/*listen(sockfd,5);
+	listen(sockfd,5);
 	
 	clientlen = sizeof(clientAddress);
-	newsockfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientlen);*/
+	newsockfd = accept(sockfd, (struct sockaddr *)&clientAddress, &clientlen);
 	
 	return 0;
-}
+}*/

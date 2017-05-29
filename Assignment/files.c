@@ -8,6 +8,8 @@
 #include "io.h"
 #include "logger.h"
 #include "files.h"
+#include <sys/types.h>
+
 
 void saveFriends(friendsList_t **friends, int counter){
 	
@@ -72,6 +74,7 @@ void loadFriends(friendsList_t **friends, settings_t settings, int flag){
 	#			FLAGS			#
 	#		0 = Add Friend			#
 	#		1 = Edit friends		#
+	#		2 = Print out friends		#
 	#		3 = Only load friends		#
 	##################################################*/
 
@@ -84,12 +87,16 @@ void loadFriends(friendsList_t **friends, settings_t settings, int flag){
 		while(fgets(buffer,512,fp) != NULL){
 			if (buffer[0] != '\n'){
 				//fprintf(stdout, "%s\n",buffer);//DEBUG
+				
 			
 				strcpy(friends[counter]->username, strtok(buffer,delimitor));
 				strcpy(friends[counter]->IPAddress, strtok(NULL,delimitor));
 				strcpy(portstr, strtok(NULL,delimitor));
 				friends[counter]->port = atoi(portstr);
 				counter ++;
+				if (flag == 2){
+					fprintf(stdout, "%d. %s\n", counter, friends[counter]->username);
+				}
 			}
 		}//end of while
 	}//end of if
@@ -438,16 +445,18 @@ int loadSettings(settings_t *settings){//change freads to fgets
 void mainMenu(shareList_t **sharingList,settings_t settings, friendsList_t **friends){
 	while (1){
 		int x=0;
-		char *menuOptions[4];
+		char *menuOptions[5];
+		char buffer[20];
 		fprintf(stdout, "Bug exists here, to use menu options enter first menu number followed by sub menu option. E.G. enter \"21\" to add a new friend.\n");//KNOWN BUG HERE
 		fprintf(stdout, "What would you like to do?\n");
 		
 		menuOptions[0] = "Edit sharing list";
 		menuOptions[1] = "Edit Friends";
 		menuOptions[2] = "Download a file";
-		menuOptions[3] = "Exit";
-		displayMenu(menuOptions, 4, 0);
-		x = inputInt(&x,"",2,0);
+		menuOptions[3] = "Listen for a connection";
+		menuOptions[4] = "Exit";
+		displayMenu(menuOptions, 5, 0);
+		x = inputInt(&x,"",2,0);//returns int -1
 		
 		if (x==0){//Edit share list
 			char *editShareMenu[2];
@@ -456,7 +465,8 @@ void mainMenu(shareList_t **sharingList,settings_t settings, friendsList_t **fri
 			editShareMenu[1] = "Edit permissions to a file";
 			displayMenu(editShareMenu, 2, 0);
 			//fprintf(stdout, "\n");
-			y = inputInt(&y,"asd",2,0);
+			//y = inputInt(&y,"Input int here:",2,0);
+			y = atoi(fgets(buffer,5,stdin));
 			if (y == 0 || y == 1){
 				loadSharingList(sharingList, settings, y); 
 			}
@@ -475,9 +485,17 @@ void mainMenu(shareList_t **sharingList,settings_t settings, friendsList_t **fri
 			}
 		}
 		else if(x==2){//Download file
-
+			int y = 0;
+			fprintf(stdout, "Which friends would you like to download off?\n");
+			loadFriends(friends, settings, 2);
+			y = inputInt(&y," \t",10,0);
 		}
-		else if(x==3){//exit
+		else if(x==3){//Listen
+			//new process here
+			fprintf(stdout, "A new process should be made here\n");
+			listenHandler(settings.port);
+		}
+		else if(x==4){//exit
 			return;
 		}
 		else{
@@ -489,9 +507,9 @@ void mainMenu(shareList_t **sharingList,settings_t settings, friendsList_t **fri
 int main(){
 	//intialiseLogger()
 	int i = 0, maxShares = 25, maxFriends = 25;
+	//pid_t pid1 = 0;
 	settings_t settings = {"User","192.168.0.12","./log.txt",777};
 	loadSettings(&settings);//gets settings
-	
 	//Intialise sharing List and friends list
 	shareList_t *sharingList[maxShares];
 	friendsList_t *friends[maxFriends];
@@ -504,8 +522,20 @@ int main(){
 	
 	loadSharingList(sharingList,settings, 3);//gets sharing List
 	loadFriends(friends, settings, 3);
+	initLogger(settings.logFile);
+	/*
+	pid1 = fork();
+	logThis("test", "log.txt");
+
+	if(pid1 == 0){
+	//This is the child process
+	initLogger(settings.logFile);
+	}*/
 	
 	mainMenu(sharingList, settings, friends);
-	logThis("Program finished with no fatal errors.",settings.logFile);
+	logThis("Program finished with no fatal errors.\n",settings.logFile);
+
+	
+	
 	return 0;
 }

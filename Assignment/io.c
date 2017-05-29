@@ -38,10 +38,15 @@ int inputInt(int *userInput,char msg[], int length, int flag){//NEEDS FIXING
 
 	//char *x = malloc(sizeof(int));
 	char x[255];
+	int y;
 	fprintf(stdout, "%s\n",msg);
 	fgets(x, length, stdin);
 	//userInput = atoi(x);
-	return (atoi(x)-1);
+	y = atoi(x);
+	if (flag == 0){
+		y-=1;
+	}
+	return (y);
 
 }
 
